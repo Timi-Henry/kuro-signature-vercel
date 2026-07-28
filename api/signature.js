@@ -10,8 +10,8 @@ const BACKGROUND_URL = new URL(
 );
 
 const COUNTER_POSITION = {
-  left: 329,
-  top: 58,
+  left: 340,
+  top: 52,
   width: 118,
   height: 43,
 };
