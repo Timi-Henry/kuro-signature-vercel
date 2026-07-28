@@ -1,0 +1,13 @@
+{
+  "name": "kuro-torn-signature",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dynamic Kuro JFK Misfits Torn signature with a live Counter12 visitor counter.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "sharp": "^0.34.3"
+  }
+}

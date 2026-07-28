@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kuro — JFK Misfits Signature</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #080808;
+        color: #eeeeee;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top, rgba(130, 0, 0, 0.2), transparent 40%),
+          #080808;
+      }
+      main {
+        width: min(920px, calc(100% - 32px));
+        margin: 48px auto;
+      }
+      h1 { margin-bottom: 8px; }
+      p { color: #bdbdbd; line-height: 1.55; }
+      .preview {
+        margin: 24px 0;
+        padding: 16px;
+        border: 1px solid #3a3a3a;
+        background: #111;
+      }
+      .preview img {
+        display: block;
+        width: 100%;
+        max-width: 780px;
+        height: auto;
+        margin: 0 auto;
+      }
+      code, pre {
+        font-family: Consolas, "Courier New", monospace;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 16px;
+        border-left: 3px solid #b40000;
+        background: #111;
+        color: #f1f1f1;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .note {
+        padding: 14px 16px;
+        border: 1px solid #4a1515;
+        background: #170909;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Kuro — JFK Misfits</h1>
+      <p>Your live Torn profile-signature image is running.</p>
+
+      <div class="preview">
+        <img id="signature" alt="Kuro JFK Misfits visitor counter signature" />
+      </div>
+
+      <h2>Paste this into Torn's source-code editor</h2>
+      <pre id="embed"></pre>
+
+      <p class="note">
+        The endpoint disables caching so the Counter12 image can refresh when the
+        signature is requested. Some browsers or sites may still temporarily cache
+        externally hosted images.
+      </p>
+    </main>
+
+    <script>
+      const endpoint = `${window.location.origin}/api/signature`;
+      document.getElementById("signature").src = `${endpoint}?preview=${Date.now()}`;
+      document.getElementById("embed").textContent =
+        `<img src="${endpoint}" alt="Kuro — JFK Misfits visitor counter" style="width:100%;max-width:780px;height:auto;">`;
+    </script>
+  </body>
+</html>
