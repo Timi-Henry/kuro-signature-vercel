@@ -5,7 +5,7 @@ const COUNTER_URL =
   "https://www.counter12.com/img-7Azd5zZ0D8aYAxWZ-78.gif";
 
 const BACKGROUND_URL = new URL(
-  "../public/signature-bg.png",
+  "../public/signature-bg.gif",
   import.meta.url,
 );
 
@@ -17,7 +17,7 @@ const COUNTER_POSITION = {
 };
 
 const NO_CACHE_HEADERS = {
-  "Content-Type": "image/png",
+  "Content-Type": "image/gif",
   "Cache-Control": "no-store, no-cache, max-age=0, must-revalidate",
   "CDN-Cache-Control": "no-store",
   "Vercel-CDN-Cache-Control": "no-store",
@@ -32,7 +32,7 @@ async function getCounterImage() {
     cache: "no-store",
     headers: {
       Accept: "image/gif,image/*;q=0.9,*/*;q=0.8",
-      "User-Agent": "Kuro-Torn-Signature/1.0",
+      "User-Agent": "Kuro-Torn-Signature/2.0",
     },
   });
 
@@ -68,6 +68,15 @@ function offlineCounterSvg() {
 
 async function renderSignature() {
   const background = await readFile(BACKGROUND_URL);
+  const metadata = await sharp(background, { animated: true }).metadata();
+
+  const width = metadata.width;
+  const pageHeight = metadata.pageHeight ?? metadata.height;
+  const pages = metadata.pages ?? 1;
+
+  if (!width || !pageHeight) {
+    throw new Error("Unable to read animated background dimensions.");
+  }
 
   let counter;
   try {
@@ -77,15 +86,37 @@ async function renderSignature() {
     counter = offlineCounterSvg();
   }
 
-  return sharp(background)
-    .composite([
-      {
-        input: counter,
-        left: COUNTER_POSITION.left,
-        top: COUNTER_POSITION.top,
-      },
-    ])
-    .png({ compressionLevel: 9, adaptiveFiltering: true })
+  // Sharp loads animated images as one vertically stacked image. Build a matching
+  // transparent overlay with the counter repeated once for every animation frame.
+  const counterLayers = Array.from({ length: pages }, (_, frame) => ({
+    input: counter,
+    left: COUNTER_POSITION.left,
+    top: COUNTER_POSITION.top + frame * pageHeight,
+  }));
+
+  const repeatedCounter = await sharp({
+    create: {
+      width,
+      height: pageHeight * pages,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite(counterLayers)
+    .png()
+    .toBuffer();
+
+  return sharp(background, { animated: true })
+    .composite([{ input: repeatedCounter, left: 0, top: 0 }])
+    .gif({
+      loop: metadata.loop ?? 0,
+      delay: metadata.delay ?? 100,
+      colours: 256,
+      effort: 7,
+      dither: 0.8,
+      interFrameMaxError: 4,
+      keepDuplicateFrames: true,
+    })
     .toBuffer();
 }
 
@@ -99,7 +130,7 @@ export default {
       });
     } catch (error) {
       console.error("Signature generation failed:", error);
-      return new Response("Unable to generate signature image.", {
+      return new Response("Unable to generate animated signature image.", {
         status: 500,
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
